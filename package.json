@@ -1,0 +1,22 @@
+{
+  "name": "qa-sheets-automation",
+  "version": "1.0.0",
+  "description": "QA collaboration reporting automation for Google Sheets (Apps Script) with a Node-testable pure aggregation core",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "qa",
+    "google-apps-script",
+    "google-sheets",
+    "test-reporting",
+    "clasp"
+  ],
+  "author": "Daehun Oh <dheogns1222@gmail.com>",
+  "license": "MIT"
+}

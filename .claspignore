@@ -1,0 +1,5 @@
+# clasp push 대상: appsscript.json + src/ + lib/core.js 만
+**/**
+!appsscript.json
+!src/*.js
+!lib/core.js

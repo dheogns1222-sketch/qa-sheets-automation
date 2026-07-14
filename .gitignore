@@ -1,0 +1,14 @@
+# clasp (실제 스크립트 ID는 커밋하지 않는다 — .clasp.json.example 참고)
+.clasp.json
+.clasprc.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
