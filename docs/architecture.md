@@ -31,6 +31,10 @@ sequenceDiagram
     Note over SH: 트리거(Triggers.js)가 매일 정해진 시각 실행
 ```
 
+## 2.5 원본 문서 실측 구조 (Drive 원본 기준)
+
+TL 마스터 문서는 12개 시트로 운영되었다: Cover(인원 현황 FILTER 자동 표시) / Resource(NETWORKDAYS 근속·근태 계산) / 근태관리 / Test Guide / Qroad보고서 / Tracking(TC 문서 동적 참조) / Issuelist(VLOOKUP 양식 연동) / Issue_Checklist / Calendar / 양식 모음 / Test Result(TEXTJOIN 종합 판정). TE 문서의 Daily Report 시트는 인사말부터 결과 요약까지 **보고 메일 본문 전체를 수식으로 조립**했다 — 이 로직은 코드 판의 `Core.buildDailyReportMessage()` / `Core.listDailyIssueKeys()`로 이식되었다.
+
 ## 3. 수식 → 코드 대응표
 
 | 원본 수식 (실배포 버전) | 코드 판 | 개선점 |

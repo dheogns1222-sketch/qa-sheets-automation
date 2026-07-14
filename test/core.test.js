@@ -217,3 +217,45 @@ describe('summarizeDailyIssues — 당일 이슈 요약 문구', () => {
     assert.equal(summary.text, '총 1건');
   });
 });
+
+// ── 원본 Daily Report 문구 조립 로직 (Drive 원본 확인 후 추가: 2026-07-15) ──
+const { test: t2, describe: d2 } = require('node:test');
+const assert2 = require('node:assert');
+
+d2('listDailyIssueKeys — 당일 이슈 키 목록 (TEXTJOIN+UNIQUE+FILTER 대응)', () => {
+  const issues = [
+    { key: 'PRJ-1', date: '2026-07-15', status: '수정 대기' },
+    { key: 'PRJ-2', date: '2026-07-15', status: '이슈 종료' },
+    { key: 'PRJ-1', date: '2026-07-15', status: '수정 대기' }, // 중복
+    { key: 'PRJ-9', date: '2026-07-14', status: '수정 대기' }, // 다른 날짜
+  ];
+  t2('당일 이슈만 중복 없이 조인한다', () => {
+    assert2.strictEqual(Core.listDailyIssueKeys(issues, '2026-07-15'), 'PRJ-1, PRJ-2');
+  });
+  t2('상태 필터를 적용한다', () => {
+    assert2.strictEqual(Core.listDailyIssueKeys(issues, '2026-07-15', '이슈 종료'), 'PRJ-2');
+  });
+  t2('해당 건이 없으면 "-" (원본 표기 규약)', () => {
+    assert2.strictEqual(Core.listDailyIssueKeys(issues, '2026-01-01'), '-');
+  });
+});
+
+d2('buildDailyReportMessage — 보고 본문 자동 조립 (Daily Report!C7 대응)', () => {
+  const counts = { pass: 7, fail: 2, block: 1, na: 1, noRun: 1, total: 12 };
+  const msg = Core.buildDailyReportMessage({
+    team: 'QA 1팀', name: '오대훈', date: '2026-07-15',
+    counts, issueLine: '총 5건 (수정 확인 2건)', issueKeys: 'PRJ-101, PRJ-103',
+  });
+  t2('인사말·소속·이름이 포함된다', () => {
+    assert2.ok(msg.includes('안녕하세요.'));
+    assert2.ok(msg.includes('QA 1팀 오대훈입니다.'));
+  });
+  t2('수행 건수와 결과 분포가 정확하다', () => {
+    assert2.ok(msg.includes('수행: 10건 (Pass 7 / Fail 2 / Block 1)'));
+  });
+  t2('진행률·성공률·이슈 라인이 포함된다', () => {
+    assert2.ok(msg.includes('진행률: 90.9%'));
+    assert2.ok(msg.includes('금일 등록 이슈: 총 5건 (수정 확인 2건)'));
+    assert2.ok(msg.includes('이슈 번호: PRJ-101, PRJ-103'));
+  });
+});
