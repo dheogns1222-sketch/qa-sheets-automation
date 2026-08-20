@@ -259,3 +259,46 @@ d2('buildDailyReportMessage — 보고 본문 자동 조립 (Daily Report!C7 대
     assert2.ok(msg.includes('이슈 번호: PRJ-101, PRJ-103'));
   });
 });
+
+// ---------------------------------------------------------------------------
+// normalizeResult / normalizeSeverity — 전 집계 함수의 최하단 정규화 로직.
+// countResults/aggregateIssues를 통해서만 간접 실행되어 왔는데, 여기서
+// 회귀가 나면 상위 집계 전부가 조용히 틀어지므로 직접 단위 검증한다.
+// ---------------------------------------------------------------------------
+d2('normalizeResult — 결과값 셀 정규화 (동치분할 + 경계값)', () => {
+  t2('알려진 변형 표기를 표준 라벨로 흡수한다 (동치분할: 유효 클래스)', () => {
+    assert2.strictEqual(Core.normalizeResult('PASS'), 'Pass');
+    assert2.strictEqual(Core.normalizeResult('  fail '), 'Fail');
+    assert2.strictEqual(Core.normalizeResult('blocked'), 'Block');
+    assert2.strictEqual(Core.normalizeResult('NA'), 'N/A');
+    assert2.strictEqual(Core.normalizeResult('no-run'), 'No Run');
+  });
+  t2('결과값이 아닌 입력은 null을 반환한다 (동치분할: 무효 클래스)', () => {
+    assert2.strictEqual(Core.normalizeResult('테스트 스텝 설명'), null);
+    assert2.strictEqual(Core.normalizeResult(123), null);
+    assert2.strictEqual(Core.normalizeResult(''), null);
+  });
+  t2('null/undefined 셀은 예외 없이 null을 반환한다 (경계값: 빈 입력)', () => {
+    assert2.strictEqual(Core.normalizeResult(null), null);
+    assert2.strictEqual(Core.normalizeResult(undefined), null);
+  });
+});
+
+d2('normalizeSeverity — 심각도 셀 정규화', () => {
+  t2('대소문자가 달라도 SEVERITIES 표준 라벨로 정규화한다 (동치분할: 유효 클래스)', () => {
+    assert2.strictEqual(Core.normalizeSeverity('highest'), 'Highest');
+    assert2.strictEqual(Core.normalizeSeverity('MEDIUM'), 'Medium');
+    assert2.strictEqual(Core.normalizeSeverity('  Low  '.trim()), 'Low');
+  });
+  t2('SEVERITIES 목록에 없는 값은 null을 반환한다 (동치분할: 무효 클래스, 회귀 방지)', () => {
+    // 원본 시트에 "긴급" 같은 임의 문구가 섞여도 집계가 조용히 틀어지지 않고
+    // 미분류로 떨어져야 한다 — aggregateIssues가 이 값을 신뢰하기 때문.
+    assert2.strictEqual(Core.normalizeSeverity('긴급'), null);
+    assert2.strictEqual(Core.normalizeSeverity('Critical'), null);
+  });
+  t2('null/undefined/빈 문자열은 null을 반환한다 (경계값: 빈 입력)', () => {
+    assert2.strictEqual(Core.normalizeSeverity(null), null);
+    assert2.strictEqual(Core.normalizeSeverity(undefined), null);
+    assert2.strictEqual(Core.normalizeSeverity(''), null);
+  });
+});
